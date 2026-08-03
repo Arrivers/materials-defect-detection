@@ -1,0 +1,32 @@
+{
+  "dataset": "NEU-DET",
+  "image_count": 1800,
+  "annotation_count": 1800,
+  "paired_count": 1800,
+  "missing_annotation_count": 0,
+  "missing_image_count": 0,
+  "image_class_counts": {
+    "crazing": 300,
+    "inclusion": 300,
+    "patches": 300,
+    "pitted_surface": 300,
+    "rolled-in_scale": 300,
+    "scratches": 300
+  },
+  "object_class_counts": {
+    "crazing": 689,
+    "inclusion": 1011,
+    "patches": 881,
+    "pitted_surface": 432,
+    "rolled-in_scale": 628,
+    "scratches": 548
+  },
+  "image_size_counts": {
+    "(200, 200)": 1800
+  },
+  "image_mode_counts": {
+    "RGB": 1800
+  },
+  "problem_count": 0,
+  "problems": []
+}
