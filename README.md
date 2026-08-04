@@ -1,91 +1,176 @@
 # Materials Surface Defect Detection
 
-A reproducible computer vision project for metallic material surface defect analysis.
+A reproducible computer vision project for metallic surface defect analysis using classical image processing, machine learning, and deep learning.
 
-This project combines a materials science background with image processing, intelligent perception, and deep learning. The current stage establishes a classical image-processing baseline using synthetic surface scratches.
+The project is developed from a materials science perspective and aims to connect material defect mechanisms with intelligent perception algorithms.
 
 ## Project Motivation
 
-Surface defects such as scratches, inclusions, cracks, and pits can affect the appearance, mechanical performance, and service reliability of metallic materials.
+Surface defects such as scratches, inclusions, cracks, pits, and oxide scales can affect the appearance, mechanical performance, and service reliability of metallic materials.
 
-The long-term goal of this project is to explore reproducible computer vision methods for automatic material surface defect detection.
+The goal of this project is to build a reproducible workflow for:
 
-## Current Workflow
+- surface image analysis;
+- defect dataset auditing and visualization;
+- image classification;
+- object detection;
+- comparison between classical and deep-learning methods.
 
-1. Generate a reproducible synthetic material surface image.
-2. Read the image as a numerical matrix.
-3. Analyze its grayscale distribution.
-4. Segment the scratch using a fixed threshold.
-5. Measure the defect area and bounding box.
-6. Compare segmentation performance under different thresholds.
+## Dataset
 
-## Image Analysis
+The project uses the NEU-DET metallic surface defect dataset.
 
-The synthetic image contains a dark scratch on a noisy grayscale surface.
+It contains 1,800 grayscale surface images divided equally into six classes:
+
+| Class | Images |
+|---|---:|
+| Crazing | 300 |
+| Inclusion | 300 |
+| Patches | 300 |
+| Pitted surface | 300 |
+| Rolled-in scale | 300 |
+| Scratches | 300 |
+| **Total** | **1,800** |
+
+The dataset also contains 1,800 Pascal VOC XML annotation files with 4,189 defect bounding boxes.
+
+Raw dataset files are excluded from Git because of their size and redistribution considerations.
+
+Expected local directory structure:
+
+```text
+data/raw/NEU-DET/
+|-- IMAGES/
+|   |-- crazing_1.jpg
+|   |-- inclusion_1.jpg
+|   `-- ...
+`-- ANNOTATIONS/
+    |-- crazing_1.xml
+    |-- inclusion_1.xml
+    `-- ...
+```
+
+## Dataset Audit
+
+The audit script verifies:
+
+- image and annotation counts;
+- image–annotation pairing;
+- image dimensions and channels;
+- annotation class names;
+- bounding-box validity;
+- missing or corrupted files.
+
+Audit result:
+
+```text
+Images: 1800
+Annotations: 1800
+Paired samples: 1800
+Missing annotations: 0
+Missing images: 0
+Problems: 0
+```
+
+![NEU-DET samples](outputs/figures/neu_det_samples.png)
+
+## Reproducible Dataset Split
+
+The dataset is divided using a stratified split with random seed 42:
+
+| Split | Images per class | Total |
+|---|---:|---:|
+| Training | 210 | 1,260 |
+| Validation | 45 | 270 |
+| Test | 45 | 270 |
+
+The generated split fingerprint is:
+
+```text
+59c6471cba3672f9677b769da153ce3b87253066807869cfde51c2b47f72393c
+```
+
+The three subsets have zero overlapping samples and cover all 1,800 images.
+
+## Classical Classification Baseline
+
+A traditional machine-learning baseline was established using:
+
+1. grayscale conversion;
+2. resizing to \(128 \times 128\);
+3. Histogram of Oriented Gradients (HOG) feature extraction;
+4. linear Support Vector Machine (SVM) classification.
+
+Each image is represented by an 8,100-dimensional HOG feature vector.
+
+### Baseline Results
+
+| Metric | Result |
+|---|---:|
+| Validation accuracy | 66.30% |
+| Test accuracy | 68.52% |
+| Macro precision | 68.92% |
+| Macro recall | 68.52% |
+| Macro F1-score | 68.48% |
+
+Per-class test results:
+
+| Class | Precision | Recall | F1-score |
+|---|---:|---:|---:|
+| Crazing | 58.00% | 64.44% | 61.05% |
+| Inclusion | 69.77% | 66.67% | 68.18% |
+| Patches | 50.00% | 55.56% | 52.63% |
+| Pitted surface | 63.16% | 53.33% | 57.83% |
+| Rolled-in scale | 88.00% | 97.78% | 92.63% |
+| Scratches | 84.62% | 73.33% | 78.57% |
+
+![Classical baseline confusion matrix](outputs/figures/classical_baseline_confusion_matrix.png)
+
+The most obvious confusion occurs between crazing and patches. This indicates that fixed HOG features cannot fully represent complex and visually similar defect textures, motivating the later introduction of deep neural networks.
+
+## Synthetic Scratch Experiment
+
+Before using the real dataset, a controlled synthetic scratch experiment was conducted to explain basic image representation, threshold segmentation, Precision, Recall, and Intersection over Union.
 
 ![Synthetic surface analysis](outputs/figures/image_analysis.png)
 
-The image is represented as a \(256 \times 256\) unsigned 8-bit matrix. Most background pixels are concentrated near a grayscale value of 150, while the scratch pixels have a grayscale value of 30.
+A pixel is classified as a scratch when:
 
-## Threshold-Based Segmentation
-
-A pixel is classified as a scratch when its grayscale value is lower than the threshold:
-
-\[
+$$
 M(x,y)=
 \begin{cases}
-1,&I(x,y)<T\\
-0,&I(x,y)\ge T
+1, & I(x,y)<T \\
+0, & I(x,y)\geq T
 \end{cases}
-\]
-
-Using \(T=80\), the program identifies 913 scratch pixels, corresponding to 1.39% of the image area.
-
-![Scratch segmentation](outputs/figures/scratch_segmentation.png)
-
-The binary mask provides pixel-level defect information, while the bounding box provides an approximate defect location.
-
-## Threshold Sensitivity Experiment
-
-The thresholds \(40,60,80,100,120,140\) were evaluated using Precision, Recall, and Intersection over Union (IoU).
+$$
 
 ![Threshold comparison](outputs/figures/threshold_comparison.png)
 
-### Main Findings
-
-- Thresholds from 40 to 80 achieve perfect segmentation on the synthetic image.
-- Increasing the threshold above 80 introduces false-positive background pixels.
-- Recall remains 1.0 because every tested threshold is greater than the scratch grayscale value of 30.
-- Precision and IoU decrease rapidly as the predicted defect area expands.
-- A fixed threshold works under controlled grayscale conditions but may fail under real illumination and texture variations.
-
-Detailed numerical results are available in:
-
-```text
-outputs/metrics/threshold_results.csv
-```
+The experiment demonstrates that fixed thresholds work under controlled grayscale conditions but are sensitive to background texture and intensity variation.
 
 ## Project Structure
 
 ```text
 materials-defect-detection/
-├── data/
-│   └── sample/
-│       ├── synthetic_scratch.png
-│       └── synthetic_scratch_ground_truth.png
-├── outputs/
-│   ├── figures/
-│   ├── masks/
-│   └── metrics/
-├── src/
-│   ├── analyze_image.py
-│   ├── check_environment.py
-│   ├── create_sample_image.py
-│   ├── project_intro.py
-│   ├── segment_scratch.py
-│   └── threshold_experiment.py
-├── requirements.txt
-└── README.md
+|-- data/
+|   |-- raw/                 # Local raw dataset, ignored by Git
+|   |-- sample/              # Synthetic sample data
+|   `-- splits/              # Reproducible train/val/test manifests
+|-- outputs/
+|   |-- figures/             # Visual results
+|   |-- masks/               # Segmentation masks
+|   `-- metrics/             # Numerical experiment results
+|-- src/
+|   |-- analyze_image.py
+|   |-- create_neu_splits.py
+|   |-- create_sample_image.py
+|   |-- inspect_neu_dataset.py
+|   |-- segment_scratch.py
+|   |-- threshold_experiment.py
+|   |-- train_classical_baseline.py
+|   `-- visualize_neu_samples.py
+|-- requirements.txt
+`-- README.md
 ```
 
 ## Reproduction
@@ -104,41 +189,43 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install the required packages:
+Install dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Run the workflow:
+After placing NEU-DET in the expected local directory, run:
 
 ```powershell
-python src/create_sample_image.py
-python src/analyze_image.py
-python src/segment_scratch.py
-python src/threshold_experiment.py
+python src/inspect_neu_dataset.py
+python src/visualize_neu_samples.py
+python src/create_neu_splits.py
+python src/train_classical_baseline.py
 ```
 
 ## Current Limitations
 
-- The current image is synthetic rather than experimental data.
-- The scratch has a fixed intensity and simple geometry.
-- The threshold is selected manually.
-- Real metallic surfaces may contain uneven illumination, reflections, complex textures, and multiple defect types.
-- The current method cannot generalize to unseen real-world defects.
+- The classification baseline uses image-level labels rather than bounding-box locations.
+- HOG features are manually designed and have limited ability to represent complex defect textures.
+- The dataset is relatively small and contains only six defect classes.
+- The dataset does not provide acquisition-group metadata, so capture-level independence cannot be fully verified.
+- Generalization to other materials, production lines, illumination conditions, and imaging systems has not yet been evaluated.
+- The object-detection and deep-learning stages are not yet complete.
 
 ## Roadmap
 
 - [x] Build a reproducible Python environment
-- [x] Generate and analyze a synthetic surface image
-- [x] Perform threshold-based scratch segmentation
+- [x] Implement synthetic scratch segmentation
 - [x] Conduct a threshold sensitivity experiment
-- [ ] Introduce a real metallic surface defect dataset
-- [ ] Perform dataset exploration and visualization
-- [ ] Build a classification baseline
-- [ ] Train an object detection model
+- [x] Audit and visualize the NEU-DET dataset
+- [x] Create a deterministic stratified dataset split
+- [x] Build a HOG and linear SVM classification baseline
+- [ ] Analyze baseline failure cases
+- [ ] Build a convolutional neural network classifier
+- [ ] Train an object-detection model using bounding-box annotations
 - [ ] Compare classical and deep-learning methods
-- [ ] Analyze failure cases and model limitations
+- [ ] Evaluate model limitations and generalization
 
 ## Author
 
