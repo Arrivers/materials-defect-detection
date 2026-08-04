@@ -1,0 +1,49 @@
+{
+  "random_seed": 42,
+  "ratios": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "total_samples": 1800,
+  "split_counts": {
+    "train": 1260,
+    "val": 270,
+    "test": 270
+  },
+  "per_class_counts": {
+    "crazing": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "inclusion": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "patches": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "pitted_surface": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "rolled-in_scale": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "scratches": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    }
+  },
+  "overlap_count": 0,
+  "missing_count": 0,
+  "split_fingerprint_sha256": "59c6471cba3672f9677b769da153ce3b87253066807869cfde51c2b47f72393c"
+}
