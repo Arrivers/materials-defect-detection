@@ -128,6 +128,24 @@ Per-class test results:
 
 The most obvious confusion occurs between crazing and patches. This indicates that fixed HOG features cannot fully represent complex and visually similar defect textures, motivating the later introduction of deep neural networks.
 
+### Validation Error Analysis
+
+Validation-set failure cases were analyzed without using the test set for model selection.
+
+![Classical baseline validation errors](outputs/figures/classical_baseline_validation_errors.png)
+
+The most frequent error directions were:
+
+- patches predicted as crazing: 13 images;
+- inclusion predicted as pitted surface: 12 images;
+- patches predicted as pitted surface: 12 images;
+- pitted surface predicted as patches: 12 images;
+- scratches predicted as inclusion: 7 images.
+
+Crazing, patches, and pitted surfaces can all contain irregular and spatially distributed textures. Their local gradient patterns may therefore appear similar to HOG. Some scratches are fragmented rather than continuous, making them locally similar to elongated inclusions.
+
+Several incorrect predictions also have large decision margins. This indicates that the model is not merely uncertain; its manually designed feature representation can confidently encode misleading similarities. These failure cases motivate the use of convolutional neural networks for learning more discriminative spatial and texture features.
+
 ## Synthetic Scratch Experiment
 
 Before using the real dataset, a controlled synthetic scratch experiment was conducted to explain basic image representation, threshold segmentation, Precision, Recall, and Intersection over Union.
@@ -221,7 +239,7 @@ python src/train_classical_baseline.py
 - [x] Audit and visualize the NEU-DET dataset
 - [x] Create a deterministic stratified dataset split
 - [x] Build a HOG and linear SVM classification baseline
-- [ ] Analyze baseline failure cases
+- [x] Analyze baseline failure cases
 - [ ] Build a convolutional neural network classifier
 - [ ] Train an object-detection model using bounding-box annotations
 - [ ] Compare classical and deep-learning methods
