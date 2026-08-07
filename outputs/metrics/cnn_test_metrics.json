@@ -1,0 +1,111 @@
+{
+  "model": "SmallCNN",
+  "checkpoint_best_epoch": 22,
+  "checkpoint_validation_accuracy": 0.9962962962962963,
+  "test_samples": 270,
+  "test_loss": 0.03438162731558636,
+  "test_accuracy": 0.9925925925925926,
+  "hog_svm_test_accuracy": 0.685185,
+  "absolute_accuracy_improvement": 0.30740759259259254,
+  "classification_report": {
+    "crazing": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 45.0
+    },
+    "inclusion": {
+      "precision": 0.9777777777777777,
+      "recall": 0.9777777777777777,
+      "f1-score": 0.9777777777777777,
+      "support": 45.0
+    },
+    "patches": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 45.0
+    },
+    "pitted_surface": {
+      "precision": 1.0,
+      "recall": 0.9777777777777777,
+      "f1-score": 0.9887640449438202,
+      "support": 45.0
+    },
+    "rolled-in_scale": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 45.0
+    },
+    "scratches": {
+      "precision": 0.9782608695652174,
+      "recall": 1.0,
+      "f1-score": 0.989010989010989,
+      "support": 45.0
+    },
+    "accuracy": 0.9925925925925926,
+    "macro avg": {
+      "precision": 0.9926731078904992,
+      "recall": 0.9925925925925926,
+      "f1-score": 0.9925921352887644,
+      "support": 270.0
+    },
+    "weighted avg": {
+      "precision": 0.9926731078904991,
+      "recall": 0.9925925925925926,
+      "f1-score": 0.9925921352887646,
+      "support": 270.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      45,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      44,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      45,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      44,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      45,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      45
+    ]
+  ]
+}

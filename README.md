@@ -146,6 +146,54 @@ Crazing, patches, and pitted surfaces can all contain irregular and spatially di
 
 Several incorrect predictions also have large decision margins. This indicates that the model is not merely uncertain; its manually designed feature representation can confidently encode misleading similarities. These failure cases motivate the use of convolutional neural networks for learning more discriminative spatial and texture features.
 
+## CNN Classification
+
+A compact convolutional neural network was trained from scratch to learn defect features directly from grayscale images.
+
+The network contains:
+
+- six convolutional layers;
+- batch normalization and ReLU activation;
+- three max-pooling layers;
+- global adaptive average pooling;
+- dropout regularization;
+- a six-class linear classifier.
+
+The model has 288,102 trainable parameters. Training images were augmented using random horizontal flipping, vertical flipping, and small rotations. The model was optimized using AdamW and cross-entropy loss.
+
+Only the training and validation splits were used for model development. The checkpoint with the highest validation accuracy was selected, and the test split was evaluated once after the configuration was fixed.
+
+### Training Results
+
+The best checkpoint was obtained at epoch 22:
+
+| Metric | Result |
+|---|---:|
+| Best validation accuracy | 99.63% |
+| Test accuracy | 99.26% |
+| Test macro F1-score | 99.26% |
+| Test images correctly classified | 268 / 270 |
+
+![CNN training curves](outputs/figures/cnn_training_curves.png)
+
+### Comparison with the Classical Baseline
+
+| Model | Validation accuracy | Test accuracy |
+|---|---:|---:|
+| HOG + Linear SVM | 66.30% | 68.52% |
+| Small CNN | **99.63%** | **99.26%** |
+
+The CNN improves test accuracy by 30.74 percentage points over the HOG and linear SVM baseline.
+
+![CNN test confusion matrix](outputs/figures/cnn_test_confusion_matrix.png)
+
+Only two test images were misclassified:
+
+- `inclusion_283` was predicted as scratches;
+- `pitted_surface_198` was predicted as inclusion.
+
+The result demonstrates that learned convolutional features are substantially more discriminative than fixed HOG features on the NEU-DET random split. However, this result represents same-dataset performance and does not yet demonstrate generalization to different materials, cameras, illumination conditions, or production lines.
+
 ## Synthetic Scratch Experiment
 
 Before using the real dataset, a controlled synthetic scratch experiment was conducted to explain basic image representation, threshold segmentation, Precision, Recall, and Intersection over Union.
@@ -177,6 +225,7 @@ materials-defect-detection/
 |-- outputs/
 |   |-- figures/             # Visual results
 |   |-- masks/               # Segmentation masks
+|   |-- models/              # Trained model checkpoints
 |   `-- metrics/             # Numerical experiment results
 |-- src/
 |   |-- analyze_image.py
@@ -186,6 +235,8 @@ materials-defect-detection/
 |   |-- segment_scratch.py
 |   |-- threshold_experiment.py
 |   |-- train_classical_baseline.py
+|   |-- evaluate_cnn_classifier.py
+|   `-- train_cnn_classifier.py
 |   `-- visualize_neu_samples.py
 |-- requirements.txt
 `-- README.md
@@ -229,7 +280,7 @@ python src/train_classical_baseline.py
 - The dataset is relatively small and contains only six defect classes.
 - The dataset does not provide acquisition-group metadata, so capture-level independence cannot be fully verified.
 - Generalization to other materials, production lines, illumination conditions, and imaging systems has not yet been evaluated.
-- The object-detection and deep-learning stages are not yet complete.
+- The object-detection stage is not yet complete.
 
 ## Roadmap
 
@@ -240,7 +291,7 @@ python src/train_classical_baseline.py
 - [x] Create a deterministic stratified dataset split
 - [x] Build a HOG and linear SVM classification baseline
 - [x] Analyze baseline failure cases
-- [ ] Build a convolutional neural network classifier
+- [x] Build a convolutional neural network classifier
 - [ ] Train an object-detection model using bounding-box annotations
 - [ ] Compare classical and deep-learning methods
 - [ ] Evaluate model limitations and generalization
